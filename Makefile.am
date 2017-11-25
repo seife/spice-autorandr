@@ -5,4 +5,8 @@ spice_autorandr_LDADD = $(AUTORANDR_LIBS)
 
 spice_autorandr_SOURCES = spice-autorandr.c
 
-dist_data_DATA = README.md
+autostartdir = $(sysconfdir)/xdg/autostart
+autostart_DATA = data/spice-autorandr.desktop
+
+EXTRA_DIST = README.md
+EXTRA_DIST += data/spice-autorandr.desktop

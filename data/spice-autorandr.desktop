@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Spice desktop resolution helper
+Comment=Automatically adjust display resolution for Spice guests
+Exec=/usr/bin/spice-autorandr
+Terminal=false
+Type=Application
+Categories=
+NotShowIn=GNOME;KDE
