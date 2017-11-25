@@ -47,6 +47,8 @@ static Display *dpy;
 static Window root;
 static int debug;
 
+static const char *portdev = "/dev/virtio-ports/com.redhat.spice.0";
+
 #define prdebug(fmt, args...) do { if (debug) { printf("%s: " fmt, myname, ##args); }} while(0)
 #define prerror(fmt, args...) do { fprintf(stderr, "%s: " fmt, myname, ##args); } while (0)
 
@@ -144,6 +146,10 @@ int main (int argc, char **argv)
 	if (argv[1] && !strcmp(argv[1], "-d"))
 		debug = 1;
 
+	if (access(portdev, F_OK) != 0) {
+		prdebug("%s does not exist, exiting\n", portdev);
+		return 0;
+	}
 	dpy = XOpenDisplay(displayname);
 	if (!dpy) {
 		prerror("unable to open display '%s'\n", XDisplayName(displayname));
