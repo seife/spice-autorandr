@@ -17,3 +17,4 @@ spice-autorandr
 spice-autorandr.o
 stamp-h1
 *.tar.*
+data/spice-autorandr.spec

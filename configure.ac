@@ -17,5 +17,6 @@ PKG_CHECK_MODULES(AUTORANDR, [xrandr x11 xproto >= 7.0.17])
 
 AC_CONFIG_FILES([
 	Makefile
+	data/spice-autorandr.spec
 	])
 AC_OUTPUT

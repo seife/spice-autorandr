@@ -10,3 +10,4 @@ autostart_DATA = data/spice-autorandr.desktop
 
 EXTRA_DIST = README.md
 EXTRA_DIST += data/spice-autorandr.desktop
+EXTRA_DIST += data/spice-autorandr.spec

@@ -1,0 +1,48 @@
+# spec file for package spice-autorandr
+#
+# Copyright (c) 2017 B1 Systems GmbH, Vohburg, Germany.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+
+# norootforbuild
+
+Name:           spice-autorandr
+Version:        @VERSION@
+Release:        0
+License:        MIT
+Summary:        Spice desktop resolution helper
+Url:            https://github.com/seife/spice-autorandr
+Group:          System/X11/Utilities
+Source:         spice-autorandr-0.0.2.tar.xz
+BuildRequires:  pkgconfig(x11)
+BuildRequires:  pkgconfig(xproto)
+BuildRequires:  pkgconfig(xrandr)
+AutoReqProv:    on
+
+%description
+Automatically adjust display resolution for Spice guests
+
+%prep
+%setup -q
+
+%build
+%configure
+make %{?_smp_mflags}
+
+%install
+%make_install
+
+%files
+%defattr(-,root,root)
+%doc README.md
+%{_bindir}/%{name}
+%{_sysconfdir}/xdg/autostart/%{name}.desktop
+
+%changelog
