@@ -25,6 +25,7 @@ You need (at least) the following devel-packages installed:
   * xorg-macros
 
 On an openSUSE system, ```zypper install 'pkgconfig(xrandr)' 'pkgconfig(x11)' 'pkgconfig(xproto)' 'pkgconfig(xorg-macros)'``` should install all that's needed. ```gcc``` and ```make``` are of course also needed.
+On a Debian-like system, ```apt install libxrandr-dev libx11-dev pkgconf``` should install the dependencies.
 
 Building should be easy:
 
