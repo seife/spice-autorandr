@@ -22,6 +22,7 @@ Url:            https://github.com/seife/spice-autorandr
 Group:          System/X11/Utilities
 Source:         spice-autorandr-0.0.2.tar.xz
 BuildRequires:  pkgconfig(x11)
+BuildRequires:  pkgconfig(xorg-macros)
 BuildRequires:  pkgconfig(xproto)
 BuildRequires:  pkgconfig(xrandr)
 AutoReqProv:    on

@@ -2,7 +2,7 @@ dnl Process this file with autoconf to create configure.
 
 # Initialize Autoconf
 AC_PREREQ([2.60])
-AC_INIT([spice-autorandr], [0.0.2])
+AC_INIT([spice-autorandr], [0.0.3])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 AC_USE_SYSTEM_EXTENSIONS
@@ -14,6 +14,7 @@ XORG_DEFAULT_OPTIONS
 
 # Checks for pkg-config packages
 PKG_CHECK_MODULES(AUTORANDR, [xrandr x11 xproto >= 7.0.17])
+PKG_CHECK_MODULES(LIBUDEV, [libudev])
 
 AC_CONFIG_FILES([
 	Makefile

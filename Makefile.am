@@ -1,7 +1,7 @@
 bin_PROGRAMS = spice-autorandr
 
-AM_CFLAGS = $(CWARNFLAGS) $(AUTORANDR_CFLAGS)
-spice_autorandr_LDADD = $(AUTORANDR_LIBS)
+AM_CFLAGS = $(CWARNFLAGS) $(AUTORANDR_CFLAGS) $(LIBUDEV_CFLAGS)
+spice_autorandr_LDADD = $(AUTORANDR_LIBS) $(LIBUDEV_LIBS)
 
 spice_autorandr_SOURCES = spice-autorandr.c
 

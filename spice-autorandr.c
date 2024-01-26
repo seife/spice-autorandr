@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Stefan Seyfried <seife+dev@b1-systems.com>
+ * Copyright (C) 2017-2024 Stefan Seyfried <seife+dev@b1-systems.com>
  *
  * License: MIT
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,11 +21,17 @@
  * SOFTWARE.
  *
  * spice-autorandr
- * Listens to RRNotify_OutputChange events and then adjusts current mode
+ * Listens to RRNotify_OutputChange events and then adjusts current mode.
+ * Also listens to udev for "drm" subsystem events and then adjusts current mode.
+ * => udev mode was inspired by https://github.com/seife/spice-autorandr/issues/1
+ *
  * Intened to be used in KVM guests with spice drivers and virt-manager's
  * "Auto Resize VM with Window" setting ticked.
  *
  * Ideas taken from xrandr and xev source code.
+ * XNextEvent timeout code inspired by
+ *   https://nrk.neocities.org/articles/x11-timeout-with-xsyncalarm
+ * Udev code inspired by https://github.com/robertalks/udev-examples
  *
  * CAVEAT: this will fail to work, if the "SPICE changed mode" one day is
  * no longer the first on the modes list seen with "xrandr -q".
@@ -41,6 +47,8 @@
 #include <X11/Xutil.h>
 #include <X11/Xproto.h>
 #include <X11/extensions/Xrandr.h>
+#include <poll.h>
+#include <libudev.h>
 
 static const char *myname;
 static Display *dpy;
@@ -140,6 +148,10 @@ int main (int argc, char **argv)
 {
 	char *displayname = NULL;
 	int screen;
+	struct udev *udev;
+	struct udev_device *dev;
+	struct udev_monitor *mon;
+	int udev_fd;
 	Bool have_rr;
 	int rr_event_base, rr_error_base;
 	myname = argv[0];
@@ -165,21 +177,64 @@ int main (int argc, char **argv)
 		exit(1);
 	}
 
+	udev = udev_new();
+	if (!udev) {
+		prerror("unable to open libudev\n");
+		exit (2);
+	}
+	mon = udev_monitor_new_from_netlink(udev, "udev");
+	udev_monitor_filter_add_match_subsystem_devtype(mon, "drm", NULL);
+	udev_monitor_enable_receiving(mon);
+	udev_fd = udev_monitor_get_fd(mon);
+
 	XRRSelectInput(dpy, root, RROutputChangeNotifyMask);
 
 	XRandR_Mode0(0, 0); /* initial mode setting */
 	while (1) {
-		XEvent event;
-		XNextEvent(dpy, &event);
-		if (event.type == rr_event_base + RRNotify) {
-			RRNotify_event(&event);
-		} else {
-			/* should not happen IMHO */
-			prdebug("Unknown event type %d\n", event.type);
-		}
+		fd_set fds;
+		struct timeval tv;
+		struct pollfd pfd = {
+			.fd = ConnectionNumber(dpy),
+			.events = POLLIN,
+		};
+		int ret;
+		Bool delivered = False;
+		Bool pending = XPending(dpy) > 0 || poll(&pfd, 1, 1000) > 0;
+		if (pending) {
+			XEvent event;
+			XNextEvent(dpy, &event);
+			if (event.type == rr_event_base + RRNotify) {
+				RRNotify_event(&event);
+				delivered = True;
+			} else {
+				/* should not happen IMHO */
+				prdebug("Unknown event type %d\n", event.type);
+			}
+		} else
+			prdebug("XNextEvent timeout\n");
+		FD_ZERO(&fds);
+		FD_SET(udev_fd, &fds);
+		tv.tv_sec = 1;
+		tv.tv_usec = 0;
+		ret = select(udev_fd + 1, &fds, NULL, NULL, &tv);
+		if (ret > 0 && FD_ISSET(udev_fd, &fds)) {
+			dev = udev_monitor_receive_device(mon);
+			if (dev) {
+				if (delivered)
+					prdebug("udev event received, but xevent already processed\n");
+				else {
+					prdebug("udev-event => XRandR_Mode0(0, 0)\n");
+					XRandR_Mode0(0, 0);
+				}
+				udev_device_unref(dev);
+			}
+		} else
+			prdebug("udev timeout\n");
 		fflush(stdout);
 	}
 
 	XCloseDisplay(dpy);
+	udev_monitor_unref(mon);
+	udev_unref(udev);
 	return 0;
 }
