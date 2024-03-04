@@ -26,12 +26,16 @@ You need (at least) the following devel-packages installed:
 
 On an openSUSE system, ```zypper install 'pkgconfig(xrandr)' 'pkgconfig(x11)' 'pkgconfig(xproto)' 'pkgconfig(xorg-macros)'``` should install all that's needed. ```gcc``` and ```make``` are of course also needed.
 
+On a Debian-like system, ```apt install libxrandr-dev libx11-dev pkgconf``` should install the dependencies.
+
 Building should be easy:
 
     ./configure
     make
 
 If you are building directly from a git checkout, prepend these with ```autoreconf -is```.
+
+Warning : if you used ```autoreconf -is``` before installing the dependencies, you will need to do it again
 
 ### Technical details
 This is the actual ```xrandr``` output of a VM (some resolutions omitted):
